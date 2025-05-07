@@ -1,0 +1,14 @@
+# Use the official PostgreSQL image as the base image
+FROM postgres:14
+
+# Set environment variables for the database
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=rest123
+ENV POSTGRES_DB=rest
+
+
+COPY init-db.sh /docker-entrypoint-initdb.d/
+
+RUN echo "port = 5438" >> /var/lib/postgresql/data/postgresql.conf
+# Expose the PostgreSQL port
+EXPOSE 5438
