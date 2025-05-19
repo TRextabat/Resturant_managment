@@ -11,7 +11,7 @@ services:
       
     command: ["postgres", "-c", "port=5438"]
     volumes:
-      - postgres_data_vm:/var/lib/postgresql/pgdata
+      - postgres_data:/var/lib/postgresql/pgdata
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: always
     networks:
@@ -38,10 +38,18 @@ services:
       - shared_network
 
   redis:
-    container_name: redis
+    container_name: resturant_redis
     image: redis:6.2-alpine
     ports:
       - "6379:6379"
     restart: always
     networks:
       - shared_network
+
+
+volumes:
+  postgres_data:
+
+networks:
+  shared_network:
+    external: true
