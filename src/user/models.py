@@ -1,5 +1,6 @@
 from sqlalchemy import String, Boolean, DATE, ForeignKey, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from datetime import date
 from src.db.database import Base
 
 class User(Base):
@@ -11,7 +12,6 @@ class User(Base):
     username: Mapped[str] = mapped_column(String, index=True, nullable=True)
     primary_email: Mapped[str | None] = mapped_column(String, unique=True, index=True)
     primary_email_verified: Mapped[bool] = mapped_column(Boolean, default=False)
-    birth_date: Mapped[DATE | None] = mapped_column(nullable=True)
     phone_number: Mapped[str | None] = mapped_column(String, unique=True, index=True, nullable=True)
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)
 
@@ -36,7 +36,7 @@ class Admin(User):
 class Waiter(User):
     __tablename__ = "waiter"
     id: Mapped[int] = mapped_column(ForeignKey("user.id"), primary_key=True)
-
+    birth_date: Mapped[date | None] = mapped_column(DATE, nullable=True)
     assigned_tables: Mapped[int | None] = mapped_column(nullable=True)
 
     __mapper_args__ = {
