@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Response, status, HTTPException, Depends, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from src.errors import register_all_errors
-
+from src.auth.routers import router as auth_router
 version = "v1"
 version_prefix = f"/api/{version}"
 
@@ -25,6 +25,7 @@ app.add_middleware(
 )
 api_router = APIRouter(prefix=version_prefix)
 
+api_router.include_router(auth_router)
 app.include_router(api_router)
 
 @app.get("/")
