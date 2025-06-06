@@ -11,6 +11,15 @@ from typing import Optional, Type
 class UserRepository(BaseRepository[User]):
     def __init__(self, session):
         super().__init__(User, session)
+
+    async def create_user_with_customer(self, user_data: dict) -> User:
+        # Create user instance
+        customer = Customer(**user_data)
+
+        self.session.add(customer)
+        await self.session.commit()
+        await self.session.refresh(customer)
+        return customer
     async def get_by_username(self, username: str) -> Optional[User]:
         stmt = select(User).where(User.username == username)
         result = await self.session.execute(stmt)

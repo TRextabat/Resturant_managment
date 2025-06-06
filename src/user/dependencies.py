@@ -6,7 +6,7 @@ from src.user.repositories import UserRepository
 from src.db.models import User
 from src.auth.dependencies import get_current_user
 from src.auth.schemas import UserProfileResponse
-
+from src.db.models import UserTypes
 async def get_order_db() -> AsyncSession:
     """Order modülü için veritabanı oturumu sağlar."""
     return await get_db()
@@ -29,7 +29,7 @@ async def get_current_customer(
     user: User = Depends(get_order_current_user)
 ) -> User:
     """Sadece müşteri rolünde kullanıcıya izin verir."""
-    if user.type != "customer":
+    if user.type != UserTypes.Customer.value :
         raise HTTPException(status_code=403, detail="Only customers can perform this action.")
     return user
 
@@ -49,4 +49,11 @@ async def get_current_kitchen_staff(
     """Sadece mutfak personeli erişebilir."""
     if user.type != "kitchen_staff":
         raise HTTPException(status_code=403, detail="Only kitchen staff can access this.")
+    return user
+
+async def get_current_customer(
+    user: User = Depends(get_order_current_user)
+) -> User:
+    if user.type != "customer":
+        raise HTTPException(status_code=403, detail="Only customers can perform this action.")
     return user

@@ -15,7 +15,7 @@ class OrderStatus(str, Enum):
 
 
 class OrderItemCreate(BaseModel):
-    menu_item_id: Optional[UUID]
+    menu_item_id:UUID
     item_name: str
     unit_price: Decimal
     quantity: int = Field(..., gt=0)
@@ -34,6 +34,7 @@ class OrderItemResponse(OrderItemCreate):
 class OrderResponse(BaseModel):
     id: UUID
     table_id: UUID
+    waiter_id: Optional[UUID]
     status: OrderStatus
     special_request: Optional[str]
     total_amount: Decimal

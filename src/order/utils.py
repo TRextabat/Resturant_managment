@@ -1,6 +1,6 @@
 from decimal import Decimal
 from typing import List
-from src.order_process.schemas import OrderItemCreate
+from order.schemas import OrderItemCreate
 
 
 def calculate_total_amount(items: List[OrderItemCreate]) -> Decimal:

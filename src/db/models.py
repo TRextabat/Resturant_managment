@@ -197,6 +197,13 @@ class Order(Base):
         lazy="joined",
         foreign_keys="[OrderItem.order_id]",
     )
+    payments: Mapped[List["Payment"]] = relationship(
+        back_populates="order",
+        cascade="all, delete-orphan",
+        foreign_keys="[Payment.order_id]",
+        lazy="selectin",
+    )
+
 
     __table_args__ = (
         CheckConstraint("total_amount >= 0", name="ck_order_total_nonnegative"),
@@ -231,13 +238,7 @@ class OrderItem(Base):
         lazy="joined",
         foreign_keys=[menu_item_id],
     )
-    payments: Mapped[List["Payment"]] = relationship(
-        back_populates="order",
-        cascade="all, delete-orphan",
-        foreign_keys="[Payment.order_id]",
-        lazy="selectin",
-    )
-
+    
     __table_args__ = (
         CheckConstraint("quantity >= 1", name="ck_item_qty_positive"),
         CheckConstraint("unit_price >= 0", name="ck_item_price_nonnegative"),

@@ -23,7 +23,7 @@ class BaseRepository(Generic[T]):
     async def get_by_id(self, obj_id: str) -> Optional[T]:
         stmt = select(self.model).where(self.model.id == obj_id)
         result = await self.session.execute(stmt)
-        return result.scalars().first()
+        return result.unique().scalars().first()
 
     async def get_all(self) -> List[T]:
         stmt = select(self.model)
