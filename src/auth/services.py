@@ -98,8 +98,8 @@ class AuthService:
 
         # Generate JWT tokens
         user_data = {"id": str(user.id), "email": user.primary_email}
-        access_token = await create_access_token(user_data, expiry=timedelta(minutes=settings.ACCESS_TOKEN_EXP_MIN))
-        refresh_token = await create_access_token(user_data, expiry=timedelta(days=settings.REFRESH_TOKEN_EXPIRY), refresh=True)
+        access_token = await create_access_token(user_data, expiry=timedelta())
+        refresh_token = await create_access_token(user_data, expiry=timedelta(), refresh=True)
 
         return VerifyEmailResponse(
             message="Email verified successfully",
