@@ -4,7 +4,7 @@ from src.table.schemas import TableCreate, TableUpdate
 from src.table.repositories import TableRepository
 
 class TableService:
-    def init(self, repo: TableRepository):
+    def __init__(self, repo: TableRepository):
         self.repo = repo
 
 
