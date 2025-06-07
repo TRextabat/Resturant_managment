@@ -58,7 +58,7 @@ class AuthService:
             "hashed_password": hashed_password,
             "primary_email_verified": False
         }
-        user = await user_repo.create(user_data)
+        user = await user_repo.create_user_with_customer(user_data)
 
         user_data_for_token = {"id": str(user.id), "email": user.primary_email, "resend_only": True}
         verification_token = await create_access_token(user_data_for_token, expiry=timedelta(minutes=15))
@@ -145,7 +145,7 @@ class AuthService:
 
         # Generate new access token
         user_data = {"id": token_data["user"]["id"], "email": token_data["user"]["email"]}
-        access_token = await create_access_token(user_data, expiry=timedelta(minutes=settings.ACCESS_TOKEN_EXP_MIN))
+        access_token = await create_access_token(user_data)
 
         return TokenResponse(access_token=access_token, refresh_token=request.refresh_token)
 

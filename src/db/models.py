@@ -34,6 +34,12 @@ class OrderStatus(str, Enum):
     PAID = "paid"
     CANCELED = "canceled"
 
+class UserTypes(str, Enum):
+    Customer = "custumer"
+    waiter = "waiter"
+    kitchen = "kitchen"
+    admin = "admin"
+
 # Association table for the many‑to‑many between waiters and physical tables
 waiter_table_link: Table = Table(
     "waiter_table_link",
@@ -191,6 +197,13 @@ class Order(Base):
         lazy="joined",
         foreign_keys="[OrderItem.order_id]",
     )
+    payments: Mapped[List["Payment"]] = relationship(
+        back_populates="order",
+        cascade="all, delete-orphan",
+        foreign_keys="[Payment.order_id]",
+        lazy="selectin",
+    )
+
 
     __table_args__ = (
         CheckConstraint("total_amount >= 0", name="ck_order_total_nonnegative"),
@@ -225,7 +238,7 @@ class OrderItem(Base):
         lazy="joined",
         foreign_keys=[menu_item_id],
     )
-
+    
     __table_args__ = (
         CheckConstraint("quantity >= 1", name="ck_item_qty_positive"),
         CheckConstraint("unit_price >= 0", name="ck_item_price_nonnegative"),
@@ -235,6 +248,9 @@ class OrderItem(Base):
     @property
     def line_total(self) -> Decimal:
         return self.unit_price * self.quantity
+
+    
+
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -331,4 +347,49 @@ class RestaurantTable(Base):
 
     __table_args__ = (
         CheckConstraint("capacity >= 1", name="ck_table_capacity_positive"),
+    )
+
+    
+# ──────────────────────────────────────────────────────────────────────────────
+# Payment
+# ──────────────────────────────────────────────────────────────────────────────
+
+class PaymentMethod(str, Enum):
+    CARD = "card"
+    CASH = "cash"
+    POS = "pos"
+
+
+class Payment(Base):
+    __tablename__ = "payment"
+
+    order_id: Mapped[UUID] = mapped_column(
+        ForeignKey("order.id", ondelete="CASCADE"), nullable=False
+    )
+    customer_id: Mapped[UUID] = mapped_column(
+        ForeignKey("customer.id", ondelete="SET NULL"), nullable=True
+    )
+
+    amount: Mapped[Decimal] = mapped_column(
+        Numeric(10, 2), nullable=False
+    )
+    method: Mapped[PaymentMethod] = mapped_column(
+        SQLAlchemyEnum(PaymentMethod, native_enum=False), nullable=False
+    )
+    is_successful: Mapped[bool] = mapped_column(Boolean, default=False)
+    paid_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+
+    # relationships
+    order: Mapped["Order"] = relationship(
+        back_populates="payments",
+        foreign_keys=[order_id],
+        lazy="selectin",
+    )
+    customer: Mapped["Customer"] = relationship(
+        foreign_keys=[customer_id],
+        lazy="selectin",
+    )
+
+    __table_args__ = (
+        CheckConstraint("amount >= 0", name="ck_payment_amount_positive"),
     )
