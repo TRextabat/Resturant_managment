@@ -8,5 +8,5 @@ class MenuCategoryRepository(BaseRepository[MenuCategory]):
         super().__init__(MenuCategory, session)
 
 class MenuItemRepository(BaseRepository[MenuItem]):
-    def init(self, session: AsyncSession):
-        super().init(MenuItem, session)
+    def __init__(self, session: AsyncSession):
+        super().__init__(MenuItem, session)

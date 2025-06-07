@@ -3,7 +3,7 @@ from src.menu.repositories import MenuItemRepository, MenuCategoryRepository
 from src.menu.schemas import MenuItemCreate, MenuCategoryCreate
 
 class MenuService:
-    def init(self, item_repo: MenuItemRepository, category_repo: MenuCategoryRepository):
+    def __init__(self, item_repo: MenuItemRepository, category_repo: MenuCategoryRepository):
         self.item_repo = item_repo
         self.category_repo = category_repo
     

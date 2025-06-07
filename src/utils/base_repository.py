@@ -28,7 +28,7 @@ class BaseRepository(Generic[T]):
     async def get_all(self) -> List[T]:
         stmt = select(self.model)
         result = await self.session.execute(stmt)
-        return result.scalars().all()
+        return result.unique().scalars().all()
 
     async def update(self, obj_id: str, update_data: Union[BaseModel, dict]) -> Optional[T]:
         obj = await self.get_by_id(obj_id)
