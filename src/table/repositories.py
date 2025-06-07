@@ -10,4 +10,4 @@ class TableRepository(BaseRepository[RestaurantTable]):
     async def get_by_table_number(self, table_number: str) -> Optional[RestaurantTable]:
         stmt = select(RestaurantTable).where(RestaurantTable.table_number == table_number)
         result = await self.session.execute(stmt)
-        return result.scalars().first()
+        return result.unique().scalars().first()
