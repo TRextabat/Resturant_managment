@@ -37,7 +37,7 @@ class OrderStatus(str, Enum):
 class UserTypes(str, Enum):
     Customer = "custumer"
     waiter = "waiter"
-    kitchen = "kitchen_staff"
+    kitchen_staf = "kitchen_staff"
     admin = "admin"
 
 # Association table for the many‑to‑many between waiters and physical tables
