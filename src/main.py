@@ -8,6 +8,7 @@ from src.table.seed import seed_tables
 from src.table.routers import router as table_router
 from src.menu.routers import router as menu_router 
 from src.menu.seed import seed_menus
+from fastapi.staticfiles import StaticFiles
 
 version = "v1"
 version_prefix = f"/api/{version}"
@@ -20,6 +21,8 @@ app = FastAPI(
     docs_url=f"{version_prefix}/docs",
     redoc_url=f"{version_prefix}/redoc",
 )
+
+app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
 register_all_errors(app)
 

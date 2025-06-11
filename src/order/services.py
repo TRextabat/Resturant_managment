@@ -5,7 +5,7 @@ from order.schemas import CreateOrderRequest, OrderStatusUpdateRequest
 from uuid import UUID
 from loguru import logger
 import random
-from src.db.models import User
+from src.db.models import Order, OrderItem, User
 from sqlalchemy import select, func
 from src.order.enums import OrderStatus
 
@@ -18,7 +18,7 @@ class OrderService:
          # Rastgele waiter seç
         stmt = select(User).where(User.type == "waiter")
         result = await self.db.session.execute(stmt)
-        waiters = result.scalars().all()
+        waiters = result.unique().scalars().all()
 
 
         if not waiters:
@@ -26,16 +26,29 @@ class OrderService:
 
         random_waiter = random.choice(waiters)
 
-        try:
-            logger.info(f" Sipariş oluşturuluyor | customer_id={customer_id} | table_id={request.table_id}")
-            return await self.db.create_order(
+        order = Order(
             customer_id=customer_id,
             waiter_id=random_waiter.id,
             table_id=request.table_id,
-            items=request.items,
             special_request=request.special_request,
-        
+            status=OrderStatus.NEW,
+            is_paid=False,
         )
+
+        for item in request.items:
+            order_item = OrderItem(
+                menu_item_id=item.menu_item_id,
+                item_name=item.item_name,
+                unit_price=item.unit_price,
+                quantity=item.quantity,
+            )
+            order.items.append(order_item)
+
+        order.recalc_total()
+
+        try:
+            logger.info(f"[Service] Sipariş oluşturuluyor | customer={customer_id} | table={request.table_id}")
+            return await self.db.insert(order)
     
         except Exception as e:
             logger.exception(f"💥 Sipariş oluşturulamadı | Hata: {e}")

@@ -299,6 +299,8 @@ class MenuItem(Base):
         CheckConstraint("price >= 0", name="ck_menuitem_price_nonnegative"),
     )
 
+    image_url: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Physical tables in the dining room
