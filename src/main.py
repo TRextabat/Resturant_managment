@@ -8,7 +8,7 @@ from src.table.seed import seed_tables
 from src.table.routers import router as table_router
 from src.menu.routers import router as menu_router 
 from src.menu.seed import seed_menus
-
+from src.user.seeds import seed as user_seed
 version = "v1"
 version_prefix = f"/api/{version}"
 
@@ -52,3 +52,9 @@ async def startup():
     async with AsyncSession() as db:
         await seed_menus(db)
 
+"""
+@app.on_event("startup")
+async def seed_user():
+    async with AsyncSession() as db:
+        await user_seed()
+"""
