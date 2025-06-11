@@ -61,7 +61,7 @@ class AuthService:
         user = await user_repo.create_user_with_customer(user_data)
 
         user_data_for_token = {"id": str(user.id), "email": user.primary_email, "resend_only": True}
-        verification_token = await create_access_token(user_data_for_token, expiry=timedelta(minutes=15))
+        verification_token = await create_access_token(user_data_for_token)
 
         # Send email
         email_content = EmailSchema(

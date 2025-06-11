@@ -4,9 +4,9 @@ from sqlalchemy.future import select
 from uuid import UUID
 from loguru import logger
 
-from src.db.models import Order, OrderItem
+from src.db.models import Order, OrderItem, OrderStatus
 from decimal import Decimal
-from typing import List
+from typing import List, Optional
 from order.schemas import OrderItemCreate
 
 
@@ -43,13 +43,19 @@ class OrderRepository(BaseRepository[Order]):
         orders = result.unique().scalars().all()
         return orders or []
 
-    async def update_status(self, order_id: UUID, new_status: str) -> Order:
+    async def update_status(self, order_id: UUID, new_status: str, is_paid: Optional[bool] = None) -> Order:
         stmt = select(Order).where(Order.id == order_id)
         result = await self.session.execute(stmt)
         order = result.unique().scalar_one_or_none()
         if not order:
             raise Exception("Order not found")
+
         order.status = new_status
+        if is_paid is not None:
+            order.is_paid = is_paid
+
         await self.session.commit()
         await self.session.refresh(order)
         return order
+    async def mark_order_as_paid(self, order_id: UUID) -> Order:
+        return await self.update_status(order_id, "paid", is_paid=True)
