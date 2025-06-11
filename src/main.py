@@ -54,6 +54,7 @@ async def startup():
     async with AsyncSession() as db:
         await seed_menus(db) 
 
+
 """ @app.on_event("startup")
 async def seed_user():
     async with AsyncSession() as db:

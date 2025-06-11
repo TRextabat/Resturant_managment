@@ -53,3 +53,4 @@ async def seed():
         await session.commit()
 
         logger.info("✅ Seeding completed successfully.")
+
