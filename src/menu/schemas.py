@@ -9,10 +9,7 @@ class MenuCategoryBase(BaseModel):
     is_active: Optional[bool] = True
 
 class MenuCategoryCreate(MenuCategoryBase):
-    name: str
-    description: Optional[str]
-    price: Decimal
-    image_url: Optional[str]
+    pass
 
 class MenuCategoryResponse(MenuCategoryBase):
     id: UUID
@@ -24,6 +21,7 @@ class MenuItemBase(BaseModel):
     description: Optional[str] = None
     price: Decimal
     category_id: Optional[UUID]
+    image_url: Optional[str]
 
 class MenuItemCreate(MenuItemBase):
     pass
