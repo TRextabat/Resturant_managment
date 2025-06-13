@@ -40,16 +40,16 @@ async def seed():
         kitchen_staff = KitchenStaff(
             id=uuid.uuid4(),
             username="chef_mike",
-            primary_email="mike1@example.com",
+            primary_email="mike12@example.com",
             primary_email_verified=True,
             hashed_password=chef_hash,
             station="Grill",
-            type="kitchen"
+            type="kitchen_staff"
         )
 
 
         # Add everything to DB
-        session.add_all([waiter1])
+        session.add_all([kitchen_staff])
         await session.commit()
 
         logger.info("✅ Seeding completed successfully.")
