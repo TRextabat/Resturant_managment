@@ -214,8 +214,8 @@ export default function KitchenDashboard() {
           <div className="container mx-auto px-4 py-4">
             <div className="flex justify-between items-center">
               <div>
-                <h1 className="text-2xl font-bold">Kitchen Dashboard</h1>
-                <p className="text-muted-foreground">Welcome, {currentUser?.primary_email}</p>
+                <h1 className="text-2xl font-bold">Bolonya Restaurant</h1>
+                <p className="text-muted-foreground">Kitchen Dashboard</p>
               </div>
               <Button variant="outline" onClick={handleLogout}>
                 <LogOut className="w-4 h-4 mr-2" />
@@ -226,117 +226,179 @@ export default function KitchenDashboard() {
         </header>
 
         <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">New Orders</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{newOrders.length}</div>
-                <p className="text-xs text-muted-foreground">Waiting for approval</p>
-              </CardContent>
-            </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Ingredients Sidebar */}
+            <div className="lg:col-span-1">
+              <Card className="sticky top-4">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center">
+                    <ChefHat className="w-5 h-5 mr-2" />
+                    Available Ingredients
+                  </CardTitle>
+                  <CardDescription>Current kitchen inventory</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {[
+                      { name: "Fresh Tomatoes", quantity: "15 kg", status: "good" },
+                      { name: "Mozzarella Cheese", quantity: "8 kg", status: "good" },
+                      { name: "Basil Leaves", quantity: "2 bunches", status: "good" },
+                      { name: "Olive Oil", quantity: "3 bottles", status: "good" },
+                      { name: "Pasta (Various)", quantity: "12 kg", status: "good" },
+                      { name: "Ground Beef", quantity: "5 kg", status: "good" },
+                      { name: "Chicken Breast", quantity: "7 kg", status: "good" },
+                      { name: "Bell Peppers", quantity: "3 kg", status: "low" },
+                      { name: "Onions", quantity: "4 kg", status: "good" },
+                      { name: "Garlic", quantity: "1 kg", status: "low" },
+                      { name: "Parmesan Cheese", quantity: "2 kg", status: "good" },
+                      { name: "Heavy Cream", quantity: "4 bottles", status: "good" },
+                      { name: "Mushrooms", quantity: "1.5 kg", status: "low" },
+                      { name: "Spinach", quantity: "2 kg", status: "good" },
+                      { name: "Lemons", quantity: "20 pieces", status: "good" },
+                    ].map((ingredient, index) => (
+                        <div key={index} className="flex justify-between items-center p-2 rounded-lg bg-muted/50">
+                          <div className="flex-1">
+                            <div className="font-medium text-sm">{ingredient.name}</div>
+                            <div className="text-xs text-muted-foreground">{ingredient.quantity}</div>
+                          </div>
+                          <Badge variant={ingredient.status === "good" ? "secondary" : "destructive"} className="text-xs">
+                            {ingredient.status === "good" ? "✓" : "Low"}
+                          </Badge>
+                        </div>
+                    ))}
+                  </div>
+                  <Button
+                      variant="outline"
+                      className="w-full mt-4"
+                      onClick={() =>
+                          toast({
+                            title: "Feature not ready",
+                            description: "Inventory management is coming soon!",
+                            variant: "default",
+                          })
+                      }
+                  >
+                    Update Inventory
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
 
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">In Progress</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{inProgressOrders.length}</div>
-                <p className="text-xs text-muted-foreground">Currently cooking</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Ready</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{readyOrders.length}</div>
-                <p className="text-xs text-muted-foreground">Ready for pickup</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Served</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{servedOrders.length}</div>
-                <p className="text-xs text-muted-foreground">Completed orders</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Canceled</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{canceledOrders.length}</div>
-                <p className="text-xs text-muted-foreground">Canceled orders</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold">All Orders</h2>
-
-            {orders.length === 0 ? (
+            {/* Main Content */}
+            <div className="lg:col-span-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
                 <Card>
-                  <CardContent className="text-center py-8">
-                    <p className="text-muted-foreground">No orders yet</p>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">New Orders</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{newOrders.length}</div>
+                    <p className="text-xs text-muted-foreground">Waiting for approval</p>
                   </CardContent>
                 </Card>
-            ) : (
-                <div className="grid gap-4">
-                  {orders
-                      .sort((a, b) => new Date(b.id).getTime() - new Date(a.id).getTime())
-                      .map((order) => (
-                          <Card key={order.id} className={`border-l-4 ${getStatusColor(order.status)}`}>
-                            <CardHeader>
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <CardTitle className="text-lg">Order #{order.id.slice(0, 8)}</CardTitle>
-                                  <CardDescription>{getTableName(order.table_id)}</CardDescription>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  {getStatusBadge(order.status)}
-                                  {order.status === "in_progress" && (
-                                      <Button size="sm" onClick={() => handleMarkReady(order.id)}>
-                                        <CheckCircle className="w-4 h-4 mr-2" />
-                                        Mark Ready
-                                      </Button>
-                                  )}
-                                </div>
-                              </div>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="space-y-2">
-                                {order.items.map((item) => (
-                                    <div key={item.menu_item_id} className="flex justify-between">
-                            <span className="font-medium">
-                              {item.quantity}x {item.item_name}
-                            </span>
-                                      <span>${item.line_total}</span>
+
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">In Progress</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{inProgressOrders.length}</div>
+                    <p className="text-xs text-muted-foreground">Currently cooking</p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">Ready</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{readyOrders.length}</div>
+                    <p className="text-xs text-muted-foreground">Ready for pickup</p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">Served</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{servedOrders.length}</div>
+                    <p className="text-xs text-muted-foreground">Completed orders</p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">Canceled</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{canceledOrders.length}</div>
+                    <p className="text-xs text-muted-foreground">Canceled orders</p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="space-y-6">
+                <h2 className="text-xl font-semibold">All Orders</h2>
+
+                {orders.length === 0 ? (
+                    <Card>
+                      <CardContent className="text-center py-8">
+                        <p className="text-muted-foreground">No orders yet</p>
+                      </CardContent>
+                    </Card>
+                ) : (
+                    <div className="grid gap-4">
+                      {orders
+                          .sort((a, b) => new Date(b.id).getTime() - new Date(a.id).getTime())
+                          .map((order) => (
+                              <Card key={order.id} className={`border-l-4 ${getStatusColor(order.status)}`}>
+                                <CardHeader>
+                                  <div className="flex justify-between items-start">
+                                    <div>
+                                      <CardTitle className="text-lg">Order #{order.id.slice(0, 8)}</CardTitle>
+                                      <CardDescription>{getTableName(order.table_id)}</CardDescription>
                                     </div>
-                                ))}
-                                {order.special_request && (
-                                    <div className="text-sm text-muted-foreground bg-muted p-2 rounded">
-                                      <strong>Special request:</strong> {order.special_request}
+                                    <div className="flex items-center gap-2">
+                                      {getStatusBadge(order.status)}
+                                      {order.status === "in_progress" && (
+                                          <Button size="sm" onClick={() => handleMarkReady(order.id)}>
+                                            <CheckCircle className="w-4 h-4 mr-2" />
+                                            Mark Ready
+                                          </Button>
+                                      )}
                                     </div>
-                                )}
-                                <div className="border-t pt-2 font-semibold">
-                                  <div className="flex justify-between">
-                                    <span>Total:</span>
-                                    <span>${order.total_amount}</span>
                                   </div>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                      ))}
-                </div>
-            )}
+                                </CardHeader>
+                                <CardContent>
+                                  <div className="space-y-2">
+                                    {order.items.map((item) => (
+                                        <div key={item.menu_item_id} className="flex justify-between">
+                                <span className="font-medium">
+                                  {item.quantity}x {item.item_name}
+                                </span>
+                                          <span>₺{item.line_total}</span>
+                                        </div>
+                                    ))}
+                                    {order.special_request && (
+                                        <div className="text-sm text-muted-foreground bg-muted p-2 rounded">
+                                          <strong>Special request:</strong> {order.special_request}
+                                        </div>
+                                    )}
+                                    <div className="border-t pt-2 font-semibold">
+                                      <div className="flex justify-between">
+                                        <span>Total:</span>
+                                        <span>₺{order.total_amount}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                          ))}
+                    </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
