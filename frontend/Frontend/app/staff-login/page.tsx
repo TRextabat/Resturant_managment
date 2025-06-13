@@ -85,9 +85,9 @@ export default function StaffLoginPage() {
 
   const handleGoogleLogin = () => {
     toast({
-      title: "Not Ready",
-      description: "Google login is not available yet.",
-      variant: "destructive",
+      title: "Feature not ready",
+      description: "Google login is coming soon!",
+      variant: "default",
     })
   }
 

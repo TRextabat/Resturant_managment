@@ -4,10 +4,12 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Minus } from "lucide-react"
+import { Plus, Minus, CreditCard } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { apiClient } from "@/lib/api"
+import { PaymentModal } from "@/components/payment-modal"
 import type { MenuItem, MenuCategory, Table, CreateOrderRequest } from "@/lib/types"
+import Image from "next/image"
 
 interface CartItem extends MenuItem {
   quantity: number
@@ -15,6 +17,7 @@ interface CartItem extends MenuItem {
 
 export default function CustomerMenu() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([])
+  const [visibleMenuItems, setVisibleMenuItems] = useState<MenuItem[]>([])
   const [categories, setCategories] = useState<MenuCategory[]>([])
   const [tables, setTables] = useState<Table[]>([])
   const [allTables, setAllTables] = useState<Table[]>([]) // Store all tables for lookup
@@ -25,12 +28,23 @@ export default function CustomerMenu() {
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [userOrders, setUserOrders] = useState<any[]>([])
   const [showOrders, setShowOrders] = useState(false)
+  const [paymentModal, setPaymentModal] = useState<{ isOpen: boolean; order: any }>({
+    isOpen: false,
+    order: null,
+  })
   const { toast } = useToast()
 
   useEffect(() => {
     loadData()
     checkAuth()
   }, [])
+
+  // Filter menu items whenever the raw data changes
+  useEffect(() => {
+    // Only show items with valid image URLs
+    const itemsWithImages = menuItems.filter((item) => item.image_url !== null)
+    setVisibleMenuItems(itemsWithImages)
+  }, [menuItems])
 
   const checkAuth = async () => {
     const userResponse = await apiClient.getCurrentUser()
@@ -84,8 +98,8 @@ export default function CustomerMenu() {
 
   const filteredItems =
       selectedCategory === "All"
-          ? menuItems
-          : menuItems.filter((item) => {
+          ? visibleMenuItems
+          : visibleMenuItems.filter((item) => {
             const category = categories.find((cat) => cat.id === item.category_id)
             return category?.name === selectedCategory
           })
@@ -130,6 +144,14 @@ export default function CustomerMenu() {
       title: "Logged out",
       description: "You have been logged out successfully",
     })
+  }
+
+  const handlePayOrder = (order: any) => {
+    setPaymentModal({ isOpen: true, order })
+  }
+
+  const handlePaymentSuccess = () => {
+    loadUserOrders() // Refresh orders to show updated payment status
   }
 
   const placeOrder = async () => {
@@ -181,7 +203,7 @@ export default function CustomerMenu() {
     } else {
       toast({
         title: "Order placed successfully!",
-        description: `Your order for $${getTotalPrice().toFixed(2)} has been sent to the kitchen.`,
+        description: `Your order for ₺${getTotalPrice().toFixed(2)} has been sent to the kitchen.`,
       })
       setCart([])
       setSelectedTable("")
@@ -193,7 +215,17 @@ export default function CustomerMenu() {
     }
   }
 
-  const categoryNames = ["All", ...categories.map((cat) => cat.name)]
+  // Get available categories based on visible menu items
+  const availableCategories = [
+    ...new Set(
+        visibleMenuItems.map((item) => {
+          const category = categories.find((cat) => cat.id === item.category_id)
+          return category?.name || "Unknown"
+        }),
+    ),
+  ]
+
+  const categoryNames = ["All", ...availableCategories]
 
   if (loading) {
     return (
@@ -212,7 +244,7 @@ export default function CustomerMenu() {
           <div className="container mx-auto px-4 py-4">
             <div className="flex justify-between items-center">
               <div>
-                <h1 className="text-3xl font-bold">Bella Vista Restaurant</h1>
+                <h1 className="text-3xl font-bold">Bolonya Restaurant</h1>
                 <p className="text-muted-foreground">Authentic Italian Cuisine</p>
               </div>
               <div className="flex items-center gap-4">
@@ -236,6 +268,18 @@ export default function CustomerMenu() {
                 <Button variant="outline" asChild>
                   <a href="/staff-login">Staff Login</a>
                 </Button>
+                <Button
+                    variant="outline"
+                    onClick={() =>
+                        toast({
+                          title: "Feature not ready",
+                          description: "Table reservations are coming soon!",
+                          variant: "default",
+                        })
+                    }
+                >
+                  Reservations
+                </Button>
               </div>
             </div>
           </div>
@@ -257,19 +301,26 @@ export default function CustomerMenu() {
                                   <CardTitle className="text-sm">Order #{order.id.slice(0, 8)}</CardTitle>
                                   <CardDescription>{getTableName(order.table_id)}</CardDescription>
                                 </div>
-                                <Badge
-                                    variant={
-                                      order.status === "ready"
-                                          ? "default"
-                                          : order.status === "served"
-                                              ? "secondary"
-                                              : order.status === "canceled"
-                                                  ? "destructive"
-                                                  : "outline"
-                                    }
-                                >
-                                  {order.status}
-                                </Badge>
+                                <div className="flex flex-col items-end gap-1">
+                                  <Badge
+                                      variant={
+                                        order.status === "ready"
+                                            ? "default"
+                                            : order.status === "served"
+                                                ? "secondary"
+                                                : order.status === "canceled"
+                                                    ? "destructive"
+                                                    : "outline"
+                                      }
+                                  >
+                                    {order.status}
+                                  </Badge>
+                                  {order.is_paid && (
+                                      <Badge variant="secondary" className="text-xs">
+                                        Paid
+                                      </Badge>
+                                  )}
+                                </div>
                               </div>
                             </CardHeader>
                             <CardContent>
@@ -279,15 +330,23 @@ export default function CustomerMenu() {
                             <span>
                               {item.quantity}x {item.item_name}
                             </span>
-                                      <span>${item.line_total}</span>
+                                      <span>₺{item.line_total}</span>
                                     </div>
                                 ))}
                                 <div className="border-t pt-1 font-semibold">
                                   <div className="flex justify-between">
                                     <span>Total:</span>
-                                    <span>${order.total_amount}</span>
+                                    <span>₺{order.total_amount}</span>
                                   </div>
                                 </div>
+                                {!order.is_paid && order.status !== "canceled" && (
+                                    <div className="pt-2">
+                                      <Button size="sm" onClick={() => handlePayOrder(order)} className="w-full">
+                                        <CreditCard className="h-4 w-4 mr-2" />
+                                        Pay Now
+                                      </Button>
+                                    </div>
+                                )}
                               </div>
                             </CardContent>
                           </Card>
@@ -316,38 +375,48 @@ export default function CustomerMenu() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredItems.map((item) => {
-                  const category = categories.find((cat) => cat.id === item.category_id)
-                  return (
-                      <Card key={item.id} className="overflow-hidden">
-                        <div className="aspect-video relative bg-muted">
-                          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                            No Image
-                          </div>
-                        </div>
-                        <CardHeader>
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <CardTitle className="text-lg">{item.name}</CardTitle>
-                              <CardDescription className="text-sm mt-1">{item.description}</CardDescription>
+              {filteredItems.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground">No menu items available in this category.</p>
+                  </div>
+              ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {filteredItems.map((item) => {
+                      const category = categories.find((cat) => cat.id === item.category_id)
+                      return (
+                          <Card key={item.id} className="overflow-hidden">
+                            <div className="aspect-video relative bg-muted">
+                              <Image
+                                  src={item.image_url || "/placeholder.svg"}
+                                  alt={item.name}
+                                  fill
+                                  className="object-cover"
+                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              />
                             </div>
-                            <Badge variant="secondary">{category?.name || "Unknown"}</Badge>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex justify-between items-center">
-                            <span className="text-2xl font-bold">${Number.parseFloat(item.price).toFixed(2)}</span>
-                            <Button onClick={() => addToCart(item)}>
-                              <Plus className="h-4 w-4 mr-2" />
-                              Add to Cart
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                  )
-                })}
-              </div>
+                            <CardHeader>
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <CardTitle className="text-lg">{item.name}</CardTitle>
+                                  <CardDescription className="text-sm mt-1">{item.description}</CardDescription>
+                                </div>
+                                <Badge variant="secondary">{category?.name || "Unknown"}</Badge>
+                              </div>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="flex justify-between items-center">
+                                <span className="text-2xl font-bold">₺{Number.parseFloat(item.price).toFixed(2)}</span>
+                                <Button onClick={() => addToCart(item)}>
+                                  <Plus className="h-4 w-4 mr-2" />
+                                  Add to Cart
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                      )
+                    })}
+                  </div>
+              )}
             </div>
 
             <div className="lg:col-span-1">
@@ -387,7 +456,7 @@ export default function CustomerMenu() {
                               <div className="flex-1">
                                 <h4 className="font-medium">{item.name}</h4>
                                 <p className="text-sm text-muted-foreground">
-                                  ${Number.parseFloat(item.price).toFixed(2)} × {item.quantity}
+                                  ₺{Number.parseFloat(item.price).toFixed(2)} × {item.quantity}
                                 </p>
                               </div>
                               <div className="flex items-center gap-2">
@@ -404,7 +473,7 @@ export default function CustomerMenu() {
                         <div className="border-t pt-4">
                           <div className="flex justify-between items-center font-semibold text-lg">
                             <span>Total:</span>
-                            <span>${getTotalPrice().toFixed(2)}</span>
+                            <span>₺{getTotalPrice().toFixed(2)}</span>
                           </div>
                           <Button
                               className="w-full mt-4"
@@ -421,6 +490,14 @@ export default function CustomerMenu() {
             </div>
           </div>
         </div>
+
+        <PaymentModal
+            isOpen={paymentModal.isOpen}
+            onClose={() => setPaymentModal({ isOpen: false, order: null })}
+            order={paymentModal.order}
+            currentUser={currentUser}
+            onPaymentSuccess={handlePaymentSuccess}
+        />
       </div>
   )
 }

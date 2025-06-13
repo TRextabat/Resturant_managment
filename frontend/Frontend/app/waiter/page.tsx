@@ -257,12 +257,24 @@ export default function WaiterDashboard() {
           <div className="container mx-auto px-4 py-4">
             <div className="flex justify-between items-center">
               <div>
-                <h1 className="text-2xl font-bold">Waiter Dashboard</h1>
-                <p className="text-muted-foreground">Welcome, {currentUser?.primary_email}</p>
+                <h1 className="text-2xl font-bold">Bolonya Restaurant</h1>
+                <p className="text-muted-foreground">Waiter Dashboard</p>
               </div>
               <Button variant="outline" onClick={handleLogout}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
+              </Button>
+              <Button
+                  variant="outline"
+                  onClick={() =>
+                      toast({
+                        title: "Feature not ready",
+                        description: "Table management is coming soon!",
+                        variant: "default",
+                      })
+                  }
+              >
+                Manage Tables
               </Button>
             </div>
           </div>
@@ -309,7 +321,7 @@ export default function WaiterDashboard() {
                             <span>
                               {item.quantity}x {item.item_name}
                             </span>
-                                    <span>${item.line_total}</span>
+                                    <span>₺{item.line_total}</span>
                                   </div>
                               ))}
                               {order.special_request && (
@@ -318,7 +330,7 @@ export default function WaiterDashboard() {
                               <div className="border-t pt-2 font-semibold">
                                 <div className="flex justify-between">
                                   <span>Total:</span>
-                                  <span>${order.total_amount}</span>
+                                  <span>₺{order.total_amount}</span>
                                 </div>
                               </div>
                             </div>
@@ -370,13 +382,13 @@ export default function WaiterDashboard() {
                             <span>
                               {item.quantity}x {item.item_name}
                             </span>
-                                    <span>${item.line_total}</span>
+                                    <span>₺{item.line_total}</span>
                                   </div>
                               ))}
                               <div className="border-t pt-2 font-semibold">
                                 <div className="flex justify-between">
                                   <span>Total:</span>
-                                  <span>${order.total_amount}</span>
+                                  <span>₺{order.total_amount}</span>
                                 </div>
                               </div>
                             </div>
@@ -418,13 +430,13 @@ export default function WaiterDashboard() {
                             <span>
                               {item.quantity}x {item.item_name}
                             </span>
-                                    <span>${item.line_total}</span>
+                                    <span>₺{item.line_total}</span>
                                   </div>
                               ))}
                               <div className="border-t pt-2 font-semibold">
                                 <div className="flex justify-between">
                                   <span>Total:</span>
-                                  <span>${order.total_amount}</span>
+                                  <span>₺{order.total_amount}</span>
                                 </div>
                               </div>
                             </div>
@@ -462,13 +474,13 @@ export default function WaiterDashboard() {
                             <span>
                               {item.quantity}x {item.item_name}
                             </span>
-                                    <span>${item.line_total}</span>
+                                    <span>₺{item.line_total}</span>
                                   </div>
                               ))}
                               <div className="border-t pt-2 font-semibold">
                                 <div className="flex justify-between">
                                   <span>Total:</span>
-                                  <span>${order.total_amount}</span>
+                                  <span>₺{order.total_amount}</span>
                                 </div>
                               </div>
                             </div>
