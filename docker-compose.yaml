@@ -46,6 +46,18 @@ services:
     networks:
       - shared_network
 
+  frontend:
+    build:
+      context: ./frontend/Frontend
+      dockerfile: Dockerfile.frontend
+    container_name: restaurant_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    restart: always
+    networks:
+      - shared_network
 
 volumes:
   postgres_data:
